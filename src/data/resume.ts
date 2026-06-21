@@ -5,7 +5,7 @@ export const personalInfo = {
   phone: "+91 9922700213",
   address: "Survey No. 108, 3/2B, Flat No 401, 4th Floor, Shubharambh Apartment, Wakad, Pune – 411057",
   nationality: "Indian",
-  maritalStatus: "Married",
+
   languages: ["English", "Hindi", "Marathi"],
   objective: "Full Stack Developer with 5+ years of experience architecting and shipping production-grade web applications across the JavaScript ecosystem. I build end-to-end solutions — from designing system architecture and database schemas to crafting pixel-perfect UIs. Passionate about clean code, scalable systems, and leveraging cloud-native services to solve real business problems.",
   tagline: "I architect, I build, I ship.",

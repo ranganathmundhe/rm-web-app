@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FiUser, FiMapPin, FiGlobe, FiHeart } from 'react-icons/fi';
+import { FiUser, FiMapPin, FiGlobe } from 'react-icons/fi';
 import { personalInfo } from '../data/resume';
 import AnimatedCounter from './AnimatedCounter';
 import GlowCard from './GlowCard';
@@ -12,7 +12,6 @@ export default function About() {
     { icon: FiUser, label: 'Name', value: personalInfo.name },
     { icon: FiMapPin, label: 'Location', value: 'Pune, India' },
     { icon: FiGlobe, label: 'Languages', value: personalInfo.languages.join(', ') },
-    { icon: FiHeart, label: 'Status', value: personalInfo.maritalStatus },
   ];
 
   return (
