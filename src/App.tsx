@@ -7,10 +7,16 @@ import Projects from './components/Projects';
 import Education from './components/Education';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Cursor from './components/Cursor';
+import ScrollProgress from './components/ScrollProgress';
+import NoiseOverlay from './components/NoiseOverlay';
 
 export default function App() {
   return (
     <div className="min-h-screen bg-dark text-text-primary">
+      <Cursor />
+      <ScrollProgress />
+      <NoiseOverlay />
       <Navbar />
       <Hero />
       <About />

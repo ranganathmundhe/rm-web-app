@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { FiArrowDown, FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 import { personalInfo } from '../data/resume';
+import AuroraBackground from './AuroraBackground';
+import MagneticHover from './MagneticHover';
 
 function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,7 +16,7 @@ function ParticleField() {
     if (!ctx) return;
 
     let animationId: number;
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number }[] = [];
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number; hue: number }[] = [];
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -23,14 +25,15 @@ function ParticleField() {
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 60; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.5 + 0.1,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2.5 + 0.5,
+        opacity: Math.random() * 0.4 + 0.1,
+        hue: Math.random() * 60 + 230, // Purple to cyan range
       });
     }
 
@@ -39,24 +42,30 @@ function ParticleField() {
       particles.forEach((p, i) => {
         p.x += p.vx;
         p.y += p.vy;
+        p.hue += 0.2;
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(108, 99, 255, ${p.opacity})`;
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, ${p.opacity})`;
         ctx.fill();
 
+        // Connect nearby particles
         particles.forEach((p2, j) => {
           if (i === j) return;
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {
+          if (dist < 120) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(108, 99, 255, ${0.08 * (1 - dist / 150)})`;
+            const gradient = ctx.createLinearGradient(p.x, p.y, p2.x, p2.y);
+            gradient.addColorStop(0, `hsla(${p.hue}, 70%, 65%, ${0.12 * (1 - dist / 120)})`);
+            gradient.addColorStop(1, `hsla(${p2.hue}, 70%, 65%, ${0.12 * (1 - dist / 120)})`);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         });
@@ -78,17 +87,14 @@ export default function Hero() {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <ParticleField />
-
-      {/* Gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/15 rounded-full blur-3xl animate-pulse delay-1000" />
+      <AuroraBackground />
 
       {/* Grid pattern */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.02]"
         style={{
-          backgroundImage: `linear-gradient(rgba(108, 99, 255, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(108, 99, 255, 0.3) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
+          backgroundImage: `linear-gradient(rgba(108, 99, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(108, 99, 255, 0.5) 1px, transparent 1px)`,
+          backgroundSize: '80px 80px',
         }}
       />
 
@@ -98,24 +104,33 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <motion.p
-            className="text-primary font-mono text-sm mb-4 tracking-widest uppercase"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+          {/* Greeting line */}
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-dark-card/50 border border-dark-border backdrop-blur-sm mb-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, type: 'spring', bounce: 0.4 }}
           >
-            Hello, I'm
-          </motion.p>
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <span className="text-text-secondary text-sm font-mono">Available for opportunities</span>
+          </motion.div>
 
           <motion.h1
-            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-text-primary via-primary to-accent bg-clip-text text-transparent leading-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Ranganath Mundhe
+            <span className="bg-gradient-to-r from-text-primary via-primary to-accent bg-clip-text text-transparent">
+              Ranganath
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-accent via-primary to-text-primary bg-clip-text text-transparent">
+              Mundhe
+            </span>
           </motion.h1>
 
+          {/* Animated role */}
           <motion.div
             className="text-xl md:text-2xl lg:text-3xl font-mono text-text-secondary mb-8 h-12"
             initial={{ opacity: 0 }}
@@ -126,18 +141,23 @@ export default function Hero() {
             <TypeAnimation
               sequence={[
                 'I architect systems.',
-                2000,
+                2500,
                 'I write clean code.',
-                2000,
+                2500,
                 'I build with AWS.',
-                2000,
+                2500,
                 'I ship production apps.',
-                2000,
+                2500,
               ]}
               wrapper="span"
-              speed={50}
+              speed={40}
               repeat={Infinity}
               className="text-text-primary"
+            />
+            <motion.span
+              className="inline-block w-0.5 h-7 bg-primary ml-1 align-middle"
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
             />
           </motion.div>
 
@@ -150,30 +170,37 @@ export default function Hero() {
             {personalInfo.objective}
           </motion.p>
 
+          {/* CTA buttons */}
           <motion.div
             className="flex flex-wrap justify-center gap-4 mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.3 }}
           >
-            <motion.a
-              href="#contact"
-              className="px-8 py-3.5 bg-primary text-white rounded-xl font-medium hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get In Touch
-            </motion.a>
-            <motion.a
-              href="#projects"
-              className="px-8 py-3.5 border border-dark-border text-text-primary rounded-xl font-medium hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View Projects
-            </motion.a>
+            <MagneticHover strength={0.4}>
+              <motion.a
+                href="#contact"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary text-white rounded-xl font-medium hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FiMail size={18} />
+                Get In Touch
+              </motion.a>
+            </MagneticHover>
+            <MagneticHover strength={0.4}>
+              <motion.a
+                href="#projects"
+                className="inline-flex items-center gap-2 px-8 py-3.5 border border-dark-border text-text-primary rounded-xl font-medium hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 backdrop-blur-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                View Projects
+              </motion.a>
+            </MagneticHover>
           </motion.div>
 
+          {/* Social links */}
           <motion.div
             className="flex justify-center gap-4"
             initial={{ opacity: 0 }}
@@ -181,33 +208,37 @@ export default function Hero() {
             transition={{ delay: 1.5 }}
           >
             {[
-              { icon: FiGithub, href: personalInfo.github },
-              { icon: FiLinkedin, href: personalInfo.linkedin },
-              { icon: FiMail, href: `mailto:${personalInfo.email}` },
-            ].map(({ icon: Icon, href }, i) => (
-              <motion.a
-                key={i}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl border border-dark-border text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all duration-300"
-                whileHover={{ scale: 1.1, y: -3 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Icon size={20} />
-              </motion.a>
+              { icon: FiGithub, href: personalInfo.github, label: 'GitHub' },
+              { icon: FiLinkedin, href: personalInfo.linkedin, label: 'LinkedIn' },
+              { icon: FiMail, href: `mailto:${personalInfo.email}`, label: 'Email' },
+            ].map(({ icon: Icon, href, label }, i) => (
+              <MagneticHover key={i} strength={0.5}>
+                <motion.a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-3 rounded-xl border border-dark-border text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 backdrop-blur-sm"
+                  whileHover={{ scale: 1.15, y: -3 }}
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={label}
+                >
+                  <Icon size={20} />
+                </motion.a>
+              </MagneticHover>
             ))}
           </motion.div>
         </motion.div>
       </div>
 
+      {/* Scroll indicator */}
       <motion.a
         href="#about"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-primary transition-colors"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-text-muted hover:text-primary transition-colors"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <FiArrowDown size={24} />
+        <span className="text-xs font-mono tracking-widest">SCROLL</span>
+        <FiArrowDown size={20} />
       </motion.a>
     </section>
   );
